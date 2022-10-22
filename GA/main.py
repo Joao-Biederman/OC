@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 import random
 
 def roleta(fitness):
@@ -14,3 +14,8 @@ class individual:
     def __init__(self, x, y):
         self.x = x;
         self.y = y;
+    
+    def calcFitness(self):
+        z = -(100*(((self.x**2)-self.y)**2) + ((1-self.x)**2))
+
+        return z
