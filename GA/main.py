@@ -1,4 +1,4 @@
-# import numpy as np
+import numpy as np
 import random
 
 def roleta(fitness):
@@ -9,7 +9,12 @@ def roleta(fitness):
             rouleta.append(i) #pra incrementar os individuos segundo a porcentagem
     return random.choice(rouleta)
 
-class individual:
+class Population:
+
+    def __init__(self, popSize):
+        self.popSize = popSize
+
+class Individual:
     
     def __init__(self, x, y):
         self.x = x;
@@ -19,3 +24,6 @@ class individual:
         z = -(100*(((self.x**2)-self.y)**2) + ((1-self.x)**2))
 
         return z
+
+print("Set population size: ")
+pop = Population(int(input()))
