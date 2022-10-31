@@ -17,12 +17,14 @@ def roleta(fitness):
     return pais
 
 def blx(Pai, Mae):
-    alpha = 0.5
-    beta = random.uniform(-alpha,1+alpha)
-    print(beta)
+    alpha = random.uniform(0,1) #esse calculo retirei dos slides, do meu entendimento foi isso
+    taxa_cruz = 0.9 #estou aderindo este valor devido ao fato de maior variabilidade 
 
-    return (Pai+beta*(Mae-Pai))
-
+    if alpha<=taxa_cruz: 
+        beta = random.uniform(-alpha,1+alpha)
+        return (Pai+beta*(Mae-Pai))
+    else:
+        return random.choice([Pai,Mae])
     
 
 class individual:
@@ -31,8 +33,12 @@ class individual:
         self.x = x
         self.y = y
 
+
+########################################################
+#Exemplos para analisar como esta se comportando o codigo#
 fit = (20, 32, 8, 40)
 pais = roleta(fit)
 Pai, Mae = pais[0], pais[1]
 filho1, filho2 = blx(fit[Pai],fit[Mae]), blx(fit[Pai],fit[Mae]) 
 print(pais, fit[Pai], fit[Mae], filho1, filho2)
+########################################################
