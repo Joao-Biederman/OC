@@ -9,6 +9,26 @@ def roleta(fitness):
             rouleta.append(i) #pra incrementar os individuos segundo a porcentagem
     return random.choice(rouleta)
 
+def creep(gene):
+    if np.random.rand() < 0.05:
+        if np.random.rand() < 0.5:
+            gene += np.random.normal(0,0.0625)
+            print(gene)
+        else:
+            gene -= np.random.normal(0,0.0625)
+            print(gene)
+        acerto(gene)
+
+def acerto(gene): # nome temporario
+    if gene > 2:
+        gene = 2
+    if gene < -2:
+        gene = -2
+    return gene
+
+def calcFitness(self):
+    z = -(100*(((self.x**2)-self.y)**2) + ((1-self.x)**2))
+
 class Population:
 
     def __init__(self, popSize):
@@ -19,11 +39,5 @@ class Individual:
     def __init__(self, x, y):
         self.x = x;
         self.y = y;
-    
-    def calcFitness(self):
-        z = -(100*(((self.x**2)-self.y)**2) + ((1-self.x)**2))
 
         return z
-
-print("Set population size: ")
-pop = Population(int(input()))
