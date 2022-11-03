@@ -17,19 +17,19 @@ def roleta(fitness):
     return pais
 
 def creep(gene):
-    if np.random.rand() < 0.05:
-        if np.random.rand() < 0.5:
+    if np.random.rand() < 0.05: #define se vai ser feita a mutação no gene
+        if np.random.rand() < 0.5: #define se a mutação sera a adição ou subtração da distribuição normal
             gene += np.random.normal(0,0.0625)
             print(gene)
         else:
             gene -= np.random.normal(0,0.0625)
             print(gene)
-        acerto(gene)
+        acerto(gene) #corrige caso o novo valor do gene tenha saido do intervalo da função
 
-def acerto(gene): # nome temporario
-    if gene > 2:
+def acerto(gene): #Nome temporario #Faz a correção de valores fora do intervalo
+    if gene > 2:  #verifica se o valor do gene está maior que o teto do intervalo
         gene = 2
-    if gene < -2:
+    if gene < -2: #verifica se o valor do gene está menor que o piso do intervalo
         gene = -2
     return gene
 
@@ -44,12 +44,5 @@ class Population:
 class Individual:
     
     def __init__(self, x, y):
-<<<<<<< HEAD
-        self.x = x;
-        self.y = y;
-
-        return z
-=======
         self.x = x
         self.y = y
->>>>>>> 16803a38356e2abf6bb7717ece17e859452ca19c
