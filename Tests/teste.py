@@ -15,6 +15,10 @@ class Individual(object):
     def get_y(self):
         return self.__y
 
+    def calcFitness(self):
+        z = -(100*(((self.__x**2)-self.__y)**2) + ((1-self.__x)**2))
+        return z
+
 def popGeneration(popSize):
     generation = []
     for i in range(popSize):
@@ -55,9 +59,10 @@ def acerto(gene): #Nome temporario #Faz a correção de valores fora do interval
         gene = -2
     return gene
 
-def calcFitness(self):
-    z = -(100*(((self.x**2)-self.y)**2) + ((1-self.x)**2))
-
 gen = popGeneration(10)
-
 print(gen)
+
+teste = gen[2]
+
+for i in range(100):
+    newteste = Individual(creep(teste.get_x()), creep(teste.get_y()))
