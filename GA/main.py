@@ -22,6 +22,16 @@ def popGeneration(popSize):
         generation.append(newIndividual)
     return generation
 
+def blx(parent):
+    alpha = random.uniform(0,1) #esse calculo retirei dos slides, do meu entendimento foi isso
+    taxa_cruz = 0.9 #estou aderindo este valor devido ao fato de maior variabilidade 
+
+    if alpha<=taxa_cruz: 
+        beta = random.uniform(-alpha,1+alpha)
+        return (parent[0]+beta*(parent[1]-parent[0]))
+    else:
+        return random.choice(parent)
+
 def roleta(fitness):
     rouleta = [] # criar lista para receber os elementos
     P1 = None

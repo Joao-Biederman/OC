@@ -7,7 +7,7 @@ class Individual(object):
         self.__y = y
 
     def __repr__(self):
-        return "|x:%s y:%s|" %(self.__x, self.__y)
+        return " [x:%s y:%s] " %(self.__x, self.__y)
 
     def get_x(self):
         return self.__x
@@ -39,7 +39,22 @@ def roleta(fitness):
     while P1 == P2:
         P2 = random.choice(rouleta)
     pais = [P1, P2]
-    return pais
+    return [P1, P2]
+
+def blx(parent):
+    alpha = random.uniform(0,1) #esse calculo retirei dos slides, do meu entendimento foi isso
+    taxa_cruz = 0.9 #estou aderindo este valor devido ao fato de maior variabilidade 
+
+    if alpha<=taxa_cruz: 
+        beta = random.uniform(-alpha,1+alpha)
+        return (parent[0]+beta*(parent[1]-parent[0]))
+    else:
+        return random.choice(parent)
+
+def crossbreed(gen, popSize, fitness):
+    for i in range(popSize-1):
+        pai = roleta(fitness)
+        newIndividual = Individual(blx([gen[pai[0]].get_x(), gen[pai[1]].get_x()]), blx([gen[pai[0]].get_y(), gen[pai[1]].get_y()]))
 
 def creep(gene):
     if np.random.rand() < 0.05: #define se vai ser feita a mutação no gene
@@ -59,10 +74,22 @@ def acerto(gene): #Nome temporario #Faz a correção de valores fora do interval
         gene = -2
     return gene
 
+quantGen = 5
+popSize = 10
 gen = popGeneration(10)
-print(gen)
 
-teste = gen[2]
+for i in range(0, quantGen):
+    print('generation %s = %s' % (i, gen))
+    newgen = []
+    fitness = []
+    
+    for j in range(popSize):
+        fitness.append(gen[j].calcFitness())
+    print('melhor fitness = %s' % max(fitness))
+    newgen.append(gen[fitness.index(max(fitness))])
 
-for i in range(100):
-    newteste = Individual(creep(teste.get_x()), creep(teste.get_y()))
+    for j in range(popSize-1):
+        pai = roleta(fitness)
+        newgen.append(Individual(blx([gen[pai[0]].get_x(), gen[pai[1]].get_x()]), blx([gen[pai[0]].get_y()(), gen[pai[1]].get_y()])))
+
+    print('New gen = %s' % newgen)
