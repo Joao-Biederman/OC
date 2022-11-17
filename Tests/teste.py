@@ -7,7 +7,7 @@ class Individual(object):
         self.__y = y
 
     def __repr__(self):
-        return " [x:%s y:%s] " %(self.__x, self.__y)
+        return " [x:%s y:%s] " % (self.__x, self.__y)
 
     def get_x(self):
         return self.__x
@@ -17,7 +17,7 @@ class Individual(object):
 
     def calcFitness(self):
         z = -(100*(((self.__x**2)-self.__y)**2) + ((1-self.__x)**2))
-        return z
+        return 3610+z
 
 def popGeneration(popSize):
     generation = []
@@ -33,63 +33,73 @@ def roleta(fitness):
     for i in range(0, len(fitness)): #pra rodar até os o ultimo individuo da população 
         prop = round((fitness[i]*100)/np.sum(fitness)) #calcula a porcentagem/quantidade de posisoes de cada individuo  
         for j in range(0, prop): 
-            rouleta.append(i) #pra incrementar os individuos segundo a porcentagem    
+            rouleta.append(i) #pra incrementar os individuos segundo a porcentagem
     P1 = random.choice(rouleta)
     P2 = random.choice(rouleta)
     while P1 == P2:
         P2 = random.choice(rouleta)
     pais = [P1, P2]
-    return [P1, P2]
+    return pais
 
-def blx(parent):
-    alpha = random.uniform(0,1) #esse calculo retirei dos slides, do meu entendimento foi isso
+def blx(p1, p2):
+    alpha = random.uniform(-2, 2) #esse calculo retirei dos slides, do meu entendimento foi isso
     taxa_cruz = 0.9 #estou aderindo este valor devido ao fato de maior variabilidade 
 
-    if alpha<=taxa_cruz: 
+    if random.uniform(0, 1)<=taxa_cruz: 
         beta = random.uniform(-alpha,1+alpha)
-        return (parent[0]+beta*(parent[1]-parent[0]))
+        gene = p1+beta*(p2-p1)
+        gene = acerto(gene)
+        return gene
     else:
-        return random.choice(parent)
+        return random.choice([p1, p2])
 
 def crossbreed(gen, popSize, fitness):
+    newgen = []
     for i in range(popSize-1):
         pai = roleta(fitness)
         newIndividual = Individual(blx([gen[pai[0]].get_x(), gen[pai[1]].get_x()]), blx([gen[pai[0]].get_y(), gen[pai[1]].get_y()]))
+        newgen.append(newIndividual)
+    return newgen
 
 def creep(gene):
     if np.random.rand() < 0.05: #define se vai ser feita a mutação no gene
         if np.random.rand() < 0.5: #define se a mutação sera a adição ou subtração da distribuição normal
-            gene += np.random.normal(0,0.0625)
-            print(gene)
+            gene += np.random.normal(0,0.5)
         else:
-            gene -= np.random.normal(0,0.0625)
-            print(gene)
+            gene -= np.random.normal(0,0.5)
         gene = acerto(gene) #corrige caso o novo valor do gene tenha saido do intervalo da função
     return gene
 
-def acerto(gene): #Nome temporario #Faz a correção de valores fora do intervalo
-    if gene > 2:  #verifica se o valor do gene está maior que o teto do intervalo
+def acerto(gene):
+    if gene > 2:
         gene = 2
-    if gene < -2: #verifica se o valor do gene está menor que o piso do intervalo
+    if gene < -2:
         gene = -2
     return gene
 
-quantGen = 5
-popSize = 10
-gen = popGeneration(10)
+quantGen = 50
+popSize = 200
+gen = popGeneration(popSize)
+print(gen)
+print()
 
 for i in range(0, quantGen):
-    print('generation %s = %s' % (i, gen))
+    # print('generation %s = %s' % (i, gen))
     newgen = []
     fitness = []
     
-    for j in range(popSize):
+    for j in range(0, popSize):
         fitness.append(gen[j].calcFitness())
-    print('melhor fitness = %s' % max(fitness))
+    # print('melhor fitness = %s\n' % max(fitness))
     newgen.append(gen[fitness.index(max(fitness))])
 
-    for j in range(popSize-1):
+    for k in range(popSize-1):
         pai = roleta(fitness)
-        newgen.append(Individual(blx([gen[pai[0]].get_x(), gen[pai[1]].get_x()]), blx([gen[pai[0]].get_y()(), gen[pai[1]].get_y()])))
-
-    print('New gen = %s' % newgen)
+        newX = blx(gen[pai[0]].get_x(), gen[pai[1]].get_x())
+        newX = creep(newX)
+        newY = blx(gen[pai[0]].get_y(), gen[pai[1]].get_y())
+        newY = creep(newY)
+        newgen.append(Individual(newX, newY))
+    gen = newgen
+print(gen)
+print('melhor fitness = %s\n' % max(fitness))
