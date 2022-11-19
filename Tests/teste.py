@@ -54,6 +54,20 @@ def blx(p1, p2):
     
     return gene
 
+def elitism(gen, fitness):
+
+    elite = []
+
+    for i in range(int(len(gen)*0.005)):
+        maxIndex = fitness.index(max(fitness))
+        
+        elite.append(gen[maxIndex])
+        
+        gen.pop(maxIndex)
+        fitness.pop(maxIndex)
+
+    return elite
+
 def crossbreed(gen, popSize):
     
     fitness = []
@@ -62,9 +76,8 @@ def crossbreed(gen, popSize):
     for j in range(0, popSize):
         fitness.append(gen[j].calcFitness())
     print('melhor fitness = %s\n' % max(fitness))
-    newgen.append(gen[fitness.index(max(fitness))])
 
-    for k in range(popSize-1):
+    for k in range(popSize-int(len(gen) * 0.005)):
         pai = roleta(fitness)
         if random.uniform(0, 1) < 0.9:
             newX = blx(gen[pai[0]].get_x(), gen[pai[1]].get_x())
@@ -74,6 +87,8 @@ def crossbreed(gen, popSize):
             newgen.append(Individual(newX, newY))
         else:
             newgen.append(random.choice([gen[pai[0]], gen[pai[1]]]))
+
+    newgen += elitism(gen, fitness)
 
     return newgen
 
