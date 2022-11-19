@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import PySimpleGUI as sg #pip install pysimplegui
+
 
 class Individual(object): 
     def __init__(self, x, y):
@@ -90,8 +92,6 @@ def acerto(gene):
     if gene < -10:
         gene = -10
     return gene
-
-import PySimpleGUI as sg
 
 sg.theme('DarkBlack') # styling the window
 
