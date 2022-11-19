@@ -22,6 +22,10 @@ class Individual(object):
         if z==0:
             z=0.0000001
         return 1/-z
+    
+    def fitnessRaw(self):
+        z = -(100*(((self.__x**2)-self.__y)**2) + ((1-self.__x)**2))
+        return z
 
 def popGeneration(popSize):
     generation = []
@@ -30,20 +34,21 @@ def popGeneration(popSize):
         generation.append(newIndividual)
     return generation
 
-def roleta(fitness):
-    rouleta = [] # criar lista para receber os elementos
-    P1 = None
-    P2 = None
+def rouletteCalc(fitness):
+    roulette = [] # criar lista para receber os elementos
     for i in range(0, len(fitness)): #pra rodar até os o ultimo individuo da população 
         prop = round((fitness[i]*10000)/np.sum(fitness)) #calcula a porcentagem/quantidade de posisoes de cada individuo  
         for j in range(0, prop): 
-            rouleta.append(i) #pra incrementar os individuos segundo a porcentagem
-    P1 = random.choice(rouleta)
-    P2 = random.choice(rouleta)
+            roulette.append(i) #pra incrementar os individuos segundo a porcentagem
+    return roulette
+
+def roulette(roulette):
+    P1 = random.choice(roulette)
+    P2 = random.choice(roulette)
     while P1 == P2:
-        P2 = random.choice(rouleta)
-    pais = [P1, P2]
-    return pais
+        P2 = random.choice(roulette)
+    parents = [P1, P2]
+    return parents
 
 def blx(p1, p2):
     alpha = random.uniform(0, 0.5) #esse calculo retirei dos slides, do meu entendimento foi isso
@@ -54,11 +59,11 @@ def blx(p1, p2):
     
     return gene
 
-def elitism(gen, fitness):
+def elitism(gen, fitness, popSize):
 
     elite = []
 
-    for i in range(int(len(gen)*0.005)):
+    for i in range(int(popSize*0.005)):
         maxIndex = fitness.index(max(fitness))
         
         elite.append(gen[maxIndex])
@@ -75,20 +80,23 @@ def crossbreed(gen, popSize):
 
     for j in range(0, popSize):
         fitness.append(gen[j].calcFitness())
-    print('melhor fitness = %s\n' % max(fitness))
+    print('Melhor Individuo = %s\n' % gen[fitness.index(max(fitness))])
+    print('Melhor fitness   = %s\n' % gen[fitness.index(max(fitness))].fitnessRaw())
 
-    for k in range(popSize-int(len(gen) * 0.005)):
-        pai = roleta(fitness)
-        if random.uniform(0, 1) < 0.9:
-            newX = blx(gen[pai[0]].get_x(), gen[pai[1]].get_x())
+    rouletteWheel = rouletteCalc(fitness)
+
+    for k in range(popSize-int(popSize * 0.005)):
+        parents = roulette(rouletteWheel)
+        if random.uniform(0, 1) < 0.95:
+            newX = blx(gen[parents[0]].get_x(), gen[parents[1]].get_x())
             newX = creep(newX)
-            newY = blx(gen[pai[0]].get_y(), gen[pai[1]].get_y())
+            newY = blx(gen[parents[0]].get_y(), gen[parents[1]].get_y())
             newY = creep(newY)
             newgen.append(Individual(newX, newY))
         else:
-            newgen.append(random.choice([gen[pai[0]], gen[pai[1]]]))
+            newgen.append(random.choice([gen[parents[0]], gen[parents[1]]]))
 
-    newgen += elitism(gen, fitness)
+    newgen += elitism(gen, fitness, popSize)
 
     return newgen
 
@@ -112,7 +120,9 @@ sg.theme('DarkBlack') # styling the window
 
 column = [
     [sg.Text('Set the population size:')],
-    [sg.Input(key='INPUT_popsize')],
+    [sg.Input(key='INPUT_popSize')],
+    [sg.Text('Set the number of generetions:')],
+    [sg.Input(key='INPUT_genAmount')],
     [sg.Button('Ok'), sg.Button('Cancel'), ]
 ]
 
@@ -130,22 +140,23 @@ while True:
         break
     
     if event == 'Ok':
-        if int(values['INPUT_popsize']) < 1:
+        if int(values['INPUT_popSize']) < 1 or int(values['INPUT_genAmount']) < 1:
             sg.popup('Insert a valid number')
         else:
-            popSize = int(values['INPUT_popsize'])
+            popSize = int(values['INPUT_popSize'])
+            genAmount = int(values['INPUT_genAmount'])
             sg.popup('Simulating population.')
             break
 
     if event == 'Cancel':
         break
 
-quantGen = 20
-gen = popGeneration(popSize)
-# print(gen)
-# print()
 
-for i in range(0, quantGen):
-    print('generation %s = %s' % (i, gen))
+gen = popGeneration(popSize)
+print('Gen 0 = %s\n' % gen)
+
+for i in range(0, genAmount):
+    # print('generation %s = %s' % (i, gen))
     gen = crossbreed(gen, popSize)
-print(gen)
+
+print('Gen %s = %s\n' % (genAmount, gen))
