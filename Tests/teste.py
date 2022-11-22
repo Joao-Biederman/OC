@@ -1,6 +1,8 @@
 import numpy as np
 import random
-import PySimpleGUI as sg #pip install pysimplegui
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import PySimpleGUI as sg
 
 
 class Individual(object): 
@@ -9,7 +11,7 @@ class Individual(object):
         self.__y = y
 
     def __repr__(self):
-        return " [x:%s y:%s] " % (self.__x, self.__y)
+        return "[x:%s y:%s]" % (self.__x, self.__y)
 
     def get_x(self):
         return self.__x
@@ -20,7 +22,7 @@ class Individual(object):
     def calcFitness(self):
         z = -(100*(((self.__x**2)-self.__y)**2) + ((1-self.__x)**2))
         if z==0:
-            z=0.0000001
+            z=0.00000001
         return 1/-z
     
     def fitnessRaw(self):
@@ -103,9 +105,9 @@ def crossbreed(gen, popSize):
 def creep(gene):
     if np.random.rand() < 0.05: #define se vai ser feita a mutação no gene
         if np.random.rand() < 0.5: #define se a mutação sera a adição ou subtração da distribuição normal
-            gene += np.random.normal(0,0.5)
+            gene += np.random.normal(0,0.5)*gene
         else:
-            gene -= np.random.normal(0,0.5)
+            gene -= np.random.normal(0,0.5)*gene
         gene = acerto(gene) #corrige caso o novo valor do gene tenha saido do intervalo da função
     return gene
 
@@ -115,6 +117,22 @@ def acerto(gene):
     if gene < -10:
         gene = -10
     return gene
+
+def steps(gen, popSize):
+    genAnimation = [[]]*popSize
+    for i in range(popSize):
+        x = gen[i].get_x()
+        y = gen[i].get_y()
+        z = gen[i].fitnessRaw()
+        genAnimation[i] = [x, y, z]
+    return genAnimation
+
+def update_lines(num, walks, lines):
+    for line, walk in zip(lines, walks):
+        # NOTE: there is no .set_data() for 3 dim data...
+        line.set_data(walk[:num, :2].T)
+        line.set_3d_properties(walk[:num, 2])
+    return lines
 
 sg.theme('DarkBlack') # styling the window
 
@@ -134,29 +152,50 @@ layout = [
 
 window = sg.Window('Genetic Algorithm', layout, size=(500,500))
 
-while True:
-    event, values = window.read()
-    if event == sg.WIN_CLOSED:
-        break
+# while True:
+#     event, values = window.read()
+#     if event == sg.WIN_CLOSED:
+#         break
     
-    if event == 'Ok':
-        if int(values['INPUT_popSize']) < 1 or int(values['INPUT_genAmount']) < 1:
-            sg.popup('Insert a valid number')
-        else:
-            popSize = int(values['INPUT_popSize'])
-            genAmount = int(values['INPUT_genAmount'])
-            sg.popup('Simulating population.')
-            break
+#     if event == 'Ok':
+#         if int(values['INPUT_popSize']) < 1 or int(values['INPUT_genAmount']) < 1:
+#             sg.popup('Insert a valid number')
+#         else:
+#             popSize = int(values['INPUT_popSize'])
+#             genAmount = int(values['INPUT_genAmount'])
+#             sg.popup('Simulating population.')
+#             break
 
-    if event == 'Cancel':
-        break
+#     if event == 'Cancel':
+#         break
 
 
+popSize = 4
+genAmount = 20
 gen = popGeneration(popSize)
+genAnimation = [[]]*genAmount
+
 print('Gen 0 = %s\n' % gen)
 
 for i in range(0, genAmount):
     # print('generation %s = %s' % (i, gen))
+    genAnimation[i] = steps(gen, popSize)
     gen = crossbreed(gen, popSize)
 
+walks = [genAnimation for index in range(genAmount)]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection="3d")
+
+lines = [ax.plot([], [], [])[0] for _ in walks]
+
+ax.set(xlim3d=(-2, 2), xlabel='X')
+ax.set(ylim3d=(-2, 2), ylabel='Y')
+ax.set(zlim3d=(-4000, 0), zlabel='Z')
+
+ani = animation.FuncAnimation(
+    fig, update_lines, popSize, fargs=(walks, lines), interval=100)
+
 print('Gen %s = %s\n' % (genAmount, gen))
+
+plt.show()
