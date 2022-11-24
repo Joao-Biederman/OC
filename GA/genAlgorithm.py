@@ -55,10 +55,8 @@ def crossbreed(gen, popSize):
             newY = creep(newY)
         else:
             pai = random.choice([0, 1])
-            newX = gen[parents[pai]].get_x()
-            newX = creep(newX)
-            newY = gen[parents[pai]].get_y()
-            newY = creep(newY)
+            newX = creep(gen[parents[pai]].get_x())
+            newY = creep(gen[parents[pai]].get_y())
         newgen.append(Individual(newX, newY))
 
     newgen += elitism(gen, fitness, popSize)
